@@ -1,0 +1,11 @@
+name: systemd-journald-stream
+description: Streaming library for systemd-journald logs.
+version: 0.1.0.0
+build-type: Simple
+category: System
+cabal-version: >= 1.2
+
+library
+  hs-source-dirs: lib
+  build-depends: base, aeson, conduit, process, unix
+  exposed-modules: Systemd.Journald.Stream
