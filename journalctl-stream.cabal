@@ -15,6 +15,6 @@ library
   hs-source-dirs: lib
   default-language: Haskell2010
   default-extensions: ImportQualifiedPost, OverloadedStrings
-  ghc-options: -Wall
-  build-depends: base < 4.18, aeson, conduit, process, unix, text, time
+  ghc-options: -Wall -Wunused-packages
+  build-depends: base < 4.18, aeson, conduit, process, text, time
   exposed-modules: Systemd.Journalctl.Stream

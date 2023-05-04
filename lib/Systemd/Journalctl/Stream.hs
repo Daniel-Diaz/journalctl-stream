@@ -21,11 +21,10 @@ module Systemd.Journalctl.Stream (
 import System.IO (Handle)
 import Data.Maybe (fromJust)
 import Control.Exception qualified as Base
+import System.Posix.Types (CPid (..), ProcessID)
 -- text
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
--- unix
-import System.Posix.Types (CPid (..), ProcessID)
 -- aeson
 import Data.Aeson (FromJSON, (.:), (.:?))
 import Data.Aeson qualified as JSON
