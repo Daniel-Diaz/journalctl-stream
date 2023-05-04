@@ -13,5 +13,5 @@ library
   hs-source-dirs: lib
   default-extensions: ImportQualifiedPost, OverloadedStrings
   ghc-options: -Wall
-  build-depends: base, aeson, conduit, process, unix, text, time
+  build-depends: base < 4.18, aeson, conduit, process, unix, text, time
   exposed-modules: Systemd.Journalctl.Stream
