@@ -1,12 +1,14 @@
 name: journalctl-stream
-description: Stream logs using journalctl.
+category: System
+synopsis: Stream logs using journalctl.
+description: Stream logs using journalctl. Check the documentation for more details.
 version: 0.1.0.0
 author: Daniel Casanueva (daniel.casanueva `at` proton.me)
 maintainer: Daniel Casanueva (daniel.casanueva `at` proton.me)
 license: MIT
 license-file: license
+extra-source-files: readme.md, changelog.md
 build-type: Simple
-category: System
 cabal-version: >= 1.10
 
 library
