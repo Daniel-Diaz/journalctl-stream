@@ -62,6 +62,8 @@ data Entry = Entry
   , entryMessage :: Text
     } deriving Show
 
+-- | Utility type to parse values (mainly numbers) that are received
+--   as text.
 newtype AsText a = AsText { asText :: a } deriving Show
 
 instance FromJSON a => FromJSON (AsText a) where
