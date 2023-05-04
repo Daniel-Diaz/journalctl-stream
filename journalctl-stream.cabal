@@ -1,6 +1,10 @@
 name: journalctl-stream
 description: Stream logs using journalctl.
 version: 0.1.0.0
+author: Daniel Casanueva (daniel.casanueva `at` proton.me)
+maintainer: Daniel Casanueva (daniel.casanueva `at` proton.me)
+license: MIT
+license-file: license
 build-type: Simple
 category: System
 cabal-version: >= 1.10
