@@ -1,14 +1,24 @@
 ----------------------------------------------------------------------------------------------------
+
+-- | Streaming interface to journalctl. Use 'entryStream' to stream
+--   journalctl entries as they are created.
+--
+--   Designed with qualified import in mind.
+--
 module Systemd.Journalctl.Stream (
     -- * Journal entry
     Entry (..)
   , Cursor
     -- * Streaming
   , entryStream
+    -- * Exceptions
+  , Exception
   ) where
 
 -- base
 import System.IO (Handle)
+import Data.Maybe (fromJust)
+import Control.Exception qualified as Base
 -- text
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
@@ -23,8 +33,8 @@ import Data.Time.Clock.POSIX (POSIXTime)
 -- process
 import System.Process qualified as System
 -- conduit
-import Conduit (MonadResource)
-import Data.Conduit (ConduitT, (.|), runConduitRes)
+import Conduit (MonadResource, MonadThrow, throwM)
+import Data.Conduit (ConduitT, (.|))
 import Data.Conduit.Combinators qualified as Conduit
 
 -- | A cursor is an opaque text string that uniquely describes
@@ -66,9 +76,14 @@ instance FromJSON Entry where
     <*> o .:? "UNIT"
     <*> o .: "MESSAGE"
 
+-- | Exception raised while streaming entries from journalctl.
+data Exception = JSONError String deriving Show
+
+instance Base.Exception Exception where
+
 -- | Stream of journal entries.
 entryStream
-  :: (MonadResource m, MonadFail m)
+  :: (MonadResource m, MonadThrow m)
   => Maybe String -- ^ Filter by unit name.
   -> Int -- ^ Number of previous messages to stream.
   -> ConduitT i Entry m ()
@@ -83,11 +98,11 @@ entryStream munit n =
           ] ++
         (maybe [] (\unit -> ["--unit", unit]) munit)
       hdl :: IO Handle
-      hdl = fmap (\(_, Just h, _, _) -> h)
+      hdl = fmap (\(_, h, _, _) -> fromJust h)
           $ System.createProcess
           $ (System.proc "journalctl" args)
               { System.std_out = System.CreatePipe
                 }
   in  Conduit.sourceIOHandle hdl
         .| Conduit.linesUnboundedAscii
-        .| Conduit.mapM (either fail pure . JSON.eitherDecodeStrict)
+        .| Conduit.mapM (either (throwM . JSONError) pure . JSON.eitherDecodeStrict)
