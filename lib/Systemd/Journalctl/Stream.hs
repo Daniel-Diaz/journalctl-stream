@@ -4,6 +4,8 @@
 --   journalctl entries as they are created.
 --
 --   Designed with qualified import in mind.
+--   For example, if you import it as @Journal@, then 'Entry' becomes
+--   @Journal.Entry@, and 'Exception' becomes @Journal.Exception@.
 --
 module Systemd.Journalctl.Stream (
     -- * Journal entry
@@ -55,7 +57,7 @@ data Entry = Entry
   , entryCursor :: Cursor
     -- | The time the entry was received by the journal.
   , entryTimestamp :: POSIXTime
-    -- | Unit name.
+    -- | Unit name, if present.
   , entryUnit :: Maybe Text
     -- | Entry message.
   , entryMessage :: Text
