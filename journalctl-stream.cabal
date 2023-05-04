@@ -1,0 +1,12 @@
+name: journalctl-stream
+description: Stream logs using journalctl.
+version: 0.1.0.0
+build-type: Simple
+category: System
+cabal-version: >= 1.10
+
+library
+  hs-source-dirs: lib
+  default-extensions: ImportQualifiedPost, OverloadedStrings
+  build-depends: base, aeson, conduit, process, unix, text, time
+  exposed-modules: Systemd.Journalctl.Stream
