@@ -52,6 +52,12 @@ data Entry = Entry
     entryPID :: ProcessID
     -- | The name of the originating host.
   , entryHostname :: Text
+    -- | Namespace identifier.
+  , entryNamespace :: Maybe Text
+    -- | Process name.
+  , entryProcess :: Text
+    -- | File path to the executable.
+  , entryExecutable :: FilePath
     -- | The cursor for the entry.
   , entryCursor :: Cursor
     -- | The time the entry was received by the journal.
@@ -70,10 +76,21 @@ instance FromJSON a => FromJSON (AsText a) where
   parseJSON = JSON.withText "AsText" $
     either fail (pure . AsText) . JSON.eitherDecodeStrict . encodeUtf8
 
+{- Journal fields
+
+For a more complete list of fields and documentation, go to:
+
+https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
+
+-}
+
 instance FromJSON Entry where
   parseJSON = JSON.withObject "Entry" $ \o -> Entry
     <$> (CPid . asText <$> o .: "_PID")
     <*> o .: "_HOSTNAME"
+    <*> o .:? "_NAMESPACE"
+    <*> o .: "_COMM"
+    <*> o .: "_EXE"
     <*> o .: "__CURSOR"
     <*> (secondsToNominalDiffTime . (/1000000) . asText <$> o .: "__REALTIME_TIMESTAMP")
     <*> o .:? "UNIT"
