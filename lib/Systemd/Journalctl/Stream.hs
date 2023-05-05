@@ -123,6 +123,8 @@ data StreamStart =
     -- | Start /after/ the given cursor.
   | AfterCursor Cursor
 
+-- | Translate a 'StreamStart' insto the arguments required
+--   for journalctl.
 streamStartArgs :: StreamStart -> [String]
 streamStartArgs (StartTime t) =
   [ "--since", formatTime defaultTimeLocale "%F %T" t ]
