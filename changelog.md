@@ -3,6 +3,7 @@
   `StreamStart`. This value can be used to indicate where the stream
   will start. The unit filter argument is gone. Instead, use conduit
   functions to filter the stream.
+* New instances for `Cursor`: `Ord`, `ToJSON`.
 
 ## 0.3.0.0
 * Fix for fields: `entryPID`, `entryProcess`, `entryExecutable`.
