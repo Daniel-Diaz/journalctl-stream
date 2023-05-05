@@ -12,6 +12,7 @@ module Systemd.Journalctl.Stream (
     Entry (..)
   , Cursor
     -- * Streaming
+  , StreamStart (..)
   , entryStream
     -- * Exceptions
   , Exception
@@ -25,12 +26,15 @@ import System.Posix.Types (CPid (..), ProcessID)
 -- text
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
+import Data.Text qualified as Text
 -- aeson
-import Data.Aeson (FromJSON, (.:), (.:?))
+import Data.Aeson (FromJSON, (.:), (.:?), ToJSON)
 import Data.Aeson qualified as JSON
 -- time
 import Data.Time.Clock (secondsToNominalDiffTime)
 import Data.Time.Clock.POSIX (POSIXTime)
+import Data.Time.LocalTime (LocalTime)
+import Data.Time.Format (formatTime, defaultTimeLocale)
 -- process
 import System.Process qualified as System
 -- conduit
@@ -41,10 +45,17 @@ import Data.Conduit.Combinators qualified as Conduit
 -- | A cursor is an opaque text string that uniquely describes
 --   the position of an entry in the journal and is portable
 --   across machines, platforms and journal files.
-newtype Cursor = Cursor Text deriving (Eq, Show)
+--
+--   The 'Ord' instance does not order by time. Given two entries
+--   @e1@ and @e2@, @e1@ having an earlier timestamp than @e2@ doesn't
+--   mean that @entryCursor e1 < entryCursor e2@.
+newtype Cursor = Cursor Text deriving (Eq, Ord, Show)
 
 instance FromJSON Cursor where
   parseJSON = JSON.withText "Cursor" $ pure . Cursor
+
+instance ToJSON Cursor where
+  toJSON (Cursor t) = JSON.String t
 
 -- | A journal entry.
 data Entry = Entry
@@ -101,22 +112,35 @@ data Exception = JSONError String deriving Show
 
 instance Base.Exception Exception where
 
--- | Stream of journal entries.
+-- | Where to start a stream.
+data StreamStart =
+    -- | Start from the given time.
+    StartTime LocalTime
+    -- | Start from the given number of lines back.
+  | Lines Int
+    -- | Start /at/ the given cursor.
+  | AtCursor Cursor
+    -- | Start /after/ the given cursor.
+  | AfterCursor Cursor
+
+streamStartArgs :: StreamStart -> [String]
+streamStartArgs (StartTime t) =
+  [ "--since", formatTime defaultTimeLocale "%F %T" t ]
+streamStartArgs (Lines n) =
+  [ "--lines" , show n ]
+streamStartArgs (AtCursor (Cursor t)) =
+  [ "--cursor", Text.unpack t ]
+streamStartArgs (AfterCursor (Cursor t)) =
+  [ "--after-cursor", Text.unpack t ]
+
+-- | Stream all journal entries starting from the given point.
 entryStream
   :: (MonadResource m, MonadThrow m)
-  => Maybe String -- ^ Filter by unit name.
-  -> Int -- ^ Number of previous messages to stream.
-  -> ConduitT i Entry m ()
-entryStream munit n =
+  => StreamStart -- ^ Where to start streaming entries.
+  -> ConduitT i Entry m () -- ^ Stream of journal entries.
+entryStream start =
   let args :: [String]
-      args =
-        [ "--follow"
-        , "--lines"
-        , show n
-        , "--output"
-        , "json"
-          ] ++
-        (maybe [] (\unit -> ["--unit", unit]) munit)
+      args = streamStartArgs start ++ [ "--follow", "--output", "json" ]
       hdl :: IO Handle
       hdl = fmap (\(_, h, _, _) -> fromJust h)
           $ System.createProcess
