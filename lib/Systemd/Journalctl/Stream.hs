@@ -49,13 +49,13 @@ instance FromJSON Cursor where
 -- | A journal entry.
 data Entry = Entry
   { -- | Process ID.
-    entryPID :: ProcessID
+    entryPID :: Maybe ProcessID
     -- | The name of the originating host.
   , entryHostname :: Text
     -- | Namespace identifier.
   , entryNamespace :: Maybe Text
     -- | Process name.
-  , entryProcess :: Text
+  , entryProcess :: Maybe Text
     -- | File path to the executable.
   , entryExecutable :: Maybe FilePath
     -- | The cursor for the entry.
@@ -86,10 +86,10 @@ https://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
 
 instance FromJSON Entry where
   parseJSON = JSON.withObject "Entry" $ \o -> Entry
-    <$> (CPid . asText <$> o .: "_PID")
+    <$> (fmap (CPid . asText) <$> o .:? "_PID")
     <*> o .: "_HOSTNAME"
     <*> o .:? "_NAMESPACE"
-    <*> o .: "_COMM"
+    <*> o .:? "_COMM"
     <*> o .:? "_EXE"
     <*> o .: "__CURSOR"
     <*> (secondsToNominalDiffTime . (/1000000) . asText <$> o .: "__REALTIME_TIMESTAMP")
