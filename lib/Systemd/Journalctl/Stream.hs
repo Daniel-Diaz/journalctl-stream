@@ -57,7 +57,7 @@ data Entry = Entry
     -- | Process name.
   , entryProcess :: Text
     -- | File path to the executable.
-  , entryExecutable :: FilePath
+  , entryExecutable :: Maybe FilePath
     -- | The cursor for the entry.
   , entryCursor :: Cursor
     -- | The time the entry was received by the journal.
@@ -90,7 +90,7 @@ instance FromJSON Entry where
     <*> o .: "_HOSTNAME"
     <*> o .:? "_NAMESPACE"
     <*> o .: "_COMM"
-    <*> o .: "_EXE"
+    <*> o .:? "_EXE"
     <*> o .: "__CURSOR"
     <*> (secondsToNominalDiffTime . (/1000000) . asText <$> o .: "__REALTIME_TIMESTAMP")
     <*> o .:? "UNIT"
