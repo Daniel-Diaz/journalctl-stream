@@ -1,3 +1,6 @@
+## 0.6.0.0
+* Add support for bytestring messages in `entryMessage`.
+
 ## 0.5.0.0
 * Fix for field: `entryMessage`. This field is not always present.
 
