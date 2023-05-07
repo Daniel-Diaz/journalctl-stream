@@ -1,3 +1,6 @@
+## 0.6.0.1
+* Fix build with aeson < 2.
+
 ## 0.6.0.0
 * Add support for bytestring messages in `entryMessage`.
 
