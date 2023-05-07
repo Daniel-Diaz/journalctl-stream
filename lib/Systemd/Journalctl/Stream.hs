@@ -35,7 +35,9 @@ import Data.ByteString qualified as ByteString
 import Data.Aeson (FromJSON, parseJSON, (.:), (.:?), ToJSON)
 import Data.Aeson qualified as JSON
 import Data.Aeson.Types qualified as JSON
+#if MIN_VERSION_aeson(2,0,0)
 import Data.Aeson.KeyMap qualified as KeyMap
+#endif
 -- time
 import Data.Time.Clock (secondsToNominalDiffTime)
 import Data.Time.Clock.POSIX (POSIXTime)
@@ -47,6 +49,10 @@ import System.Process qualified as System
 import Conduit (MonadResource, MonadThrow, throwM)
 import Data.Conduit (ConduitT, (.|))
 import Data.Conduit.Combinators qualified as Conduit
+-- unordered-containers
+#if !MIN_VERSION_aeson(2,0,0)
+import Data.HashMap.Strict qualified as HashMap
+#endif
 
 -- | A cursor is an opaque text string that uniquely describes
 --   the position of an entry in the journal and is portable
@@ -115,7 +121,11 @@ instance FromJSON Entry where
 
 messageParser :: JSON.Object -> JSON.Parser (Maybe (Either ByteString Text))
 messageParser obj =
+#if MIN_VERSION_aeson(2,0,0)
   case KeyMap.lookup "MESSAGE" obj of
+#else
+  case HashMap.lookup "MESSAGE" obj of
+#endif
     Just (JSON.String t) -> pure $ Just $ Right t
     Just (JSON.Array arr) -> Just . Left . ByteString.pack <$> mapM parseJSON (toList arr)
     Nothing -> pure Nothing
