@@ -76,7 +76,7 @@ data Entry = Entry
     -- | Unit name, if present.
   , entryUnit :: Maybe Text
     -- | Entry message.
-  , entryMessage :: Text
+  , entryMessage :: Maybe Text
     } deriving Show
 
 -- | Utility type to parse values (mainly numbers) that are received
@@ -105,7 +105,7 @@ instance FromJSON Entry where
     <*> o .: "__CURSOR"
     <*> (secondsToNominalDiffTime . (/1000000) . asText <$> o .: "__REALTIME_TIMESTAMP")
     <*> o .:? "UNIT"
-    <*> o .: "MESSAGE"
+    <*> o .:? "MESSAGE"
 
 -- | Exception raised while streaming entries from journalctl.
 data Exception = JSONError String deriving Show

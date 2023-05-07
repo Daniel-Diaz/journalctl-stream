@@ -1,3 +1,6 @@
+## 0.5.0.0
+* Fix for field: `entryMessage`. This field is not always present.
+
 ## 0.4.0.0
 * Changed arguments of `entryStream`. It now takes a value of type
   `StreamStart`. This value can be used to indicate where the stream
