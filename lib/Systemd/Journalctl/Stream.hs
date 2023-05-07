@@ -128,6 +128,7 @@ messageParser obj =
 #endif
     Just (JSON.String t) -> pure $ Just $ Right t
     Just (JSON.Array arr) -> Just . Left . ByteString.pack <$> mapM parseJSON (toList arr)
+    Just JSON.Null -> pure Nothing
     Nothing -> pure Nothing
     _ -> fail $ "Couldn't parse MESSAGE. Expected String or Array."
 

@@ -1,3 +1,6 @@
+## 0.6.0.2
+* Accept null values for `entryMessage`, returning `Nothing`.
+
 ## 0.6.0.1
 * Fix build with aeson < 2.
 
