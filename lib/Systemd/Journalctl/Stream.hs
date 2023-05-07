@@ -23,13 +23,19 @@ import System.IO (Handle)
 import Data.Maybe (fromJust)
 import Control.Exception qualified as Base
 import System.Posix.Types (CPid (..), ProcessID)
+import Data.Foldable (toList)
 -- text
 import Data.Text (Text)
 import Data.Text.Encoding (encodeUtf8)
 import Data.Text qualified as Text
+-- bytestring
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as ByteString
 -- aeson
-import Data.Aeson (FromJSON, (.:), (.:?), ToJSON)
+import Data.Aeson (FromJSON, parseJSON, (.:), (.:?), ToJSON)
 import Data.Aeson qualified as JSON
+import Data.Aeson.Types qualified as JSON
+import Data.Aeson.KeyMap qualified as KeyMap
 -- time
 import Data.Time.Clock (secondsToNominalDiffTime)
 import Data.Time.Clock.POSIX (POSIXTime)
@@ -75,8 +81,8 @@ data Entry = Entry
   , entryTimestamp :: POSIXTime
     -- | Unit name, if present.
   , entryUnit :: Maybe Text
-    -- | Entry message.
-  , entryMessage :: Maybe Text
+    -- | Entry message. It may come in binary or textual format.
+  , entryMessage :: Maybe (Either ByteString Text)
     } deriving Show
 
 -- | Utility type to parse values (mainly numbers) that are received
@@ -105,7 +111,15 @@ instance FromJSON Entry where
     <*> o .: "__CURSOR"
     <*> (secondsToNominalDiffTime . (/1000000) . asText <$> o .: "__REALTIME_TIMESTAMP")
     <*> o .:? "UNIT"
-    <*> o .:? "MESSAGE"
+    <*> messageParser o
+
+messageParser :: JSON.Object -> JSON.Parser (Maybe (Either ByteString Text))
+messageParser obj =
+  case KeyMap.lookup "MESSAGE" obj of
+    Just (JSON.String t) -> pure $ Just $ Right t
+    Just (JSON.Array arr) -> Just . Left . ByteString.pack <$> mapM parseJSON (toList arr)
+    Nothing -> pure Nothing
+    _ -> fail $ "Couldn't parse MESSAGE. Expected String or Array."
 
 -- | Exception raised while streaming entries from journalctl.
 data Exception = JSONError String deriving Show
