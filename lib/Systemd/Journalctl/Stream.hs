@@ -130,7 +130,7 @@ messageParser obj =
     Just (JSON.Array arr) -> Just . Left . ByteString.pack <$> mapM parseJSON (toList arr)
     Just JSON.Null -> pure Nothing
     Nothing -> pure Nothing
-    _ -> fail $ "Couldn't parse MESSAGE. Expected String or Array."
+    _ -> fail $ "Couldn't parse MESSAGE. Expected String, Array or Null."
 
 -- | Exception raised while streaming entries from journalctl.
 data Exception = JSONError String deriving Show
