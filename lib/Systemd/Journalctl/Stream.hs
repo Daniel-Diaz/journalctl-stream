@@ -142,6 +142,8 @@ data StreamStart =
     -- | Start from the given time.
     StartTime LocalTime
     -- | Start from the given number of lines back.
+    --   You can use @Lines 0@ to start the stream without
+    --   looking for previous lines.
   | Lines Int
     -- | Start /at/ the given cursor.
   | AtCursor Cursor
