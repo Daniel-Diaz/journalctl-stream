@@ -1,3 +1,8 @@
+## 0.6.0.3
+* Update parsing error message.
+* Document `Lines` constructor further.
+* Show stackage distributions in readme.
+
 ## 0.6.0.2
 * Accept null values for `entryMessage`, returning `Nothing`.
 
