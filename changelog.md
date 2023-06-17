@@ -1,3 +1,6 @@
+## 0.6.0.4
+* base-4.18 support.
+
 ## 0.6.0.3
 * Update parsing error message.
 * Document `Lines` constructor further.
