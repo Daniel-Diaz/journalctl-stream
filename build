@@ -22,4 +22,5 @@ stack --resolver=$1 build
 build lts-18
 build lts-19
 build lts-20
+build lts-21
 build nightly
