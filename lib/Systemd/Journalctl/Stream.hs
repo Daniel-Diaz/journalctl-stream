@@ -150,7 +150,7 @@ data StreamStart =
     -- | Start /after/ the given cursor.
   | AfterCursor Cursor
 
--- | Translate a 'StreamStart' insto the arguments required
+-- | Translate a 'StreamStart' into the arguments required
 --   for journalctl.
 streamStartArgs :: StreamStart -> [String]
 streamStartArgs (StartTime t) =
