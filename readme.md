@@ -1,4 +1,4 @@
-/This repository has been moved to GitLab./
+_This repository has been moved to GitLab._
 
 https://gitlab.com/daniel-casanueva/journalctl-stream
 
