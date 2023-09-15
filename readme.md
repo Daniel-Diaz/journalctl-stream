@@ -1,3 +1,7 @@
+/This repository has been moved to GitLab./
+
+https://gitlab.com/daniel-casanueva/journalctl-stream
+
 # journalctl-stream
 
 Simple library for Haskell that calls `journalctl` and streams the results.
